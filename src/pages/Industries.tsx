@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Filter, Factory, ArrowLeft } from "lucide-react";
@@ -56,6 +55,46 @@ const industriesData = [
     tags: ["Medical", "Healthcare", "Precision"],
     image: "https://images.unsplash.com/photo-1576086213369-97a306d36557?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
   },
+  {
+    id: 7,
+    name: "Tata Electronics",
+    description: "Advanced semiconductor and electronics manufacturing",
+    location: "Bangalore, India",
+    tags: ["Electronics", "Semiconductor", "Manufacturing"],
+    image: "https://images.unsplash.com/photo-1544616326-a013420f0f16?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: 8,
+    name: "Reliance Textiles",
+    description: "Large-scale textile manufacturing and fabric innovation",
+    location: "Mumbai, India",
+    tags: ["Textiles", "Fabrics", "Manufacturing"],
+    image: "https://images.unsplash.com/photo-1580497056906-46788f09d066?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: 9,
+    name: "Biocon Biologics",
+    description: "Biopharmaceutical production and healthcare solutions",
+    location: "Hyderabad, India",
+    tags: ["Biotech", "Pharmaceutical", "Healthcare"],
+    image: "https://images.unsplash.com/photo-1579154341098-e4e158cc7f55?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: 10,
+    name: "Infosys Manufacturing",
+    description: "IT-enabled manufacturing solutions and automation",
+    location: "Pune, India",
+    tags: ["IT", "Automation", "Software"],
+    image: "https://images.unsplash.com/photo-1607295548590-1a98543310c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: 11,
+    name: "Mahindra Electric",
+    description: "Electric vehicle and sustainable transport manufacturing",
+    location: "Chennai, India",
+    tags: ["Automotive", "Electric", "Sustainable"],
+    image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+  }
 ];
 
 const Industries = () => {
