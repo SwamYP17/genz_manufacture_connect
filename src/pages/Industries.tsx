@@ -129,7 +129,7 @@ const Industries = () => {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: a0.3 }}
+              transition={{ duration: 0.3 }}
               className="mb-4 pb-3 border-b border-genz-gray overflow-hidden"
             >
               <p className="text-sm font-medium text-genz-dark mb-2">Filter by category:</p>
