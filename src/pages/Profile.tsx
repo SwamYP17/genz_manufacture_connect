@@ -1,11 +1,14 @@
 
 import { motion } from "framer-motion";
-import { User, Settings, LogOut } from "lucide-react";
+import { User, Settings, LogOut, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { AnimatedContainer, GlassCard } from "@/components/ui-components";
 import { Button } from "@/components/ui/button";
 
 const Profile = () => {
+  const navigate = useNavigate();
+
   return (
     <Layout>
       <motion.div 
@@ -19,6 +22,15 @@ const Profile = () => {
           transition={{ duration: 0.5 }}
         >
           <div className="flex items-center mb-6">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="mr-2" 
+              onClick={() => navigate(-1)}
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </Button>
             <div className="bg-genz-blue rounded-full w-16 h-16 flex items-center justify-center text-white mr-4">
               <User size={30} />
             </div>

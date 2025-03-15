@@ -1,9 +1,14 @@
 
 import { motion } from "framer-motion";
+import { TrendingUp, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { AnimatedContainer } from "@/components/ui-components";
+import { Button } from "@/components/ui/button";
 
 const Stocks = () => {
+  const navigate = useNavigate();
+
   return (
     <Layout>
       <motion.div 
@@ -16,9 +21,20 @@ const Stocks = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="mb-4">
-            <h1 className="text-2xl font-display font-bold text-genz-dark">Stocks</h1>
-            <p className="text-genz-gray-dark mt-2">Monitor and analyze market trends</p>
+          <div className="flex items-center mb-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="mr-2" 
+              onClick={() => navigate(-1)}
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-display font-bold text-genz-dark">Stocks</h1>
+              <p className="text-genz-gray-dark mt-2">Monitor and analyze market trends</p>
+            </div>
           </div>
           
           <div className="text-center py-20">
@@ -35,6 +51,3 @@ const Stocks = () => {
 };
 
 export default Stocks;
-
-// Import at the top
-import { TrendingUp } from "lucide-react";
