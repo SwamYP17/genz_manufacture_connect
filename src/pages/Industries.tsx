@@ -1,7 +1,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Factory } from "lucide-react";
+import { Search, Filter, Factory, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { AnimatedContainer, GlassCard, Badge, Button } from "@/components/ui-components";
 
@@ -58,6 +59,7 @@ const industriesData = [
 ];
 
 const Industries = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -99,7 +101,18 @@ const Industries = () => {
           transition={{ duration: 0.5 }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-display font-bold text-genz-dark">Industries</h1>
+            <div className="flex items-center">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="mr-2" 
+                onClick={() => navigate(-1)}
+                aria-label="Go back"
+              >
+                <ArrowLeft size={20} />
+              </Button>
+              <h1 className="text-2xl font-display font-bold text-genz-dark">Industries</h1>
+            </div>
             <Button
               variant="ghost"
               size="sm"
