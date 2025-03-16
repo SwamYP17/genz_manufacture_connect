@@ -4,10 +4,17 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { Input, Button, GlassCard } from "@/components/ui-components";
+import { toast } from "@/components/ui/use-toast";
 
-const Login = () => {
+interface LoginProps {
+  setIsLoggedIn: (value: boolean) => void;
+}
+
+const Login = ({ setIsLoggedIn }: LoginProps) => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  
+  // Predefined username
+  const [email, setEmail] = useState("praveen@example.com");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,8 +44,18 @@ const Login = () => {
     setTimeout(() => {
       setIsLoading(false);
       
-      // Store user name in localStorage (in a real app, this would be from the login response)
-      localStorage.setItem("userName", "Ridhun");
+      // Store user name in localStorage - using "Praveen" as requested
+      localStorage.setItem("userName", "Praveen");
+      
+      // Set logged in state
+      setIsLoggedIn(true);
+      
+      // Show success toast
+      toast({
+        title: "Login Successful",
+        description: "Welcome back, Praveen!",
+        duration: 3000,
+      });
       
       // Navigate to home page
       navigate("/");
@@ -105,7 +122,6 @@ const Login = () => {
               <button
                 type="button"
                 className="text-sm text-genz-blue hover:underline"
-                onClick={() => navigate("/forgot-password")}
               >
                 Forgot password?
               </button>
@@ -127,7 +143,6 @@ const Login = () => {
           <p className="text-genz-gray-dark">
             Don't have an account?{" "}
             <button
-              onClick={() => navigate("/register")}
               className="text-genz-blue hover:underline font-medium"
             >
               Sign up

@@ -13,7 +13,7 @@ const Index = () => {
   const [userName, setUserName] = useState("Entrepreneur");
   
   useEffect(() => {
-    // Simulate fetching user data
+    // Get username from localStorage
     const storedName = localStorage.getItem("userName");
     if (storedName) {
       setUserName(storedName);
