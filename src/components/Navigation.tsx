@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -13,7 +12,7 @@ import {
   Wallet,
   Save
 } from "lucide-react";
-import useMobile from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NavItem {
   to: string;
@@ -23,7 +22,6 @@ interface NavItem {
   notification?: number;
 }
 
-// Reusable NavLink component
 const NavLinkItem = ({
   to,
   icon,
@@ -83,10 +81,9 @@ const NavLinkItem = ({
 };
 
 const Navigation = () => {
-  const { isMobile } = useMobile();
+  const isMobile = useIsMobile();
   const location = useLocation();
 
-  // Navigation items
   const navItems: NavItem[] = [
     {
       to: "/",
@@ -135,13 +132,10 @@ const Navigation = () => {
     },
   ];
 
-  // On mobile, we hide the navigation on route change
   const [isOpen, setIsOpen] = useState(!isMobile);
 
-  // Toggle the navigation menu
   const toggleNav = () => setIsOpen(!isOpen);
 
-  // Close navigation when route changes on mobile
   useEffect(() => {
     if (isMobile) {
       setIsOpen(false);
@@ -150,14 +144,12 @@ const Navigation = () => {
     }
   }, [location.pathname, isMobile]);
 
-  // Update isOpen when isMobile changes
   useEffect(() => {
     setIsOpen(!isMobile);
   }, [isMobile]);
 
   return (
     <>
-      {/* Mobile overlay */}
       {isMobile && isOpen && (
         <div
           className="fixed inset-0 bg-black/30 z-40"
@@ -165,7 +157,6 @@ const Navigation = () => {
         ></div>
       )}
 
-      {/* Sidebar navigation */}
       <aside
         className={`fixed top-0 pt-16 bottom-0 w-64 bg-white z-30 transition-transform duration-300 border-r border-genz-gray-light transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
@@ -180,7 +171,6 @@ const Navigation = () => {
         </div>
       </aside>
 
-      {/* Mobile nav toggle button */}
       {isMobile && (
         <button
           onClick={toggleNav}

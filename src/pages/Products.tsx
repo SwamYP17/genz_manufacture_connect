@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
+import Layout from "@/components/Layout";
 import { Trash, PlusCircle, Save } from "lucide-react";
 import SaveEstimationModal from "@/components/SaveEstimationModal";
 import { 
