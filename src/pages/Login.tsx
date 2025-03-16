@@ -40,12 +40,18 @@ const Login = ({ setIsLoggedIn }: LoginProps) => {
     
     setIsLoading(true);
     
+    // Extract name from email (get text before @)
+    const userNameFromEmail = email.split('@')[0];
+    
+    // Capitalize first letter
+    const formattedName = userNameFromEmail.charAt(0).toUpperCase() + userNameFromEmail.slice(1);
+    
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       
-      // Store user name in localStorage - using "Praveen" as requested
-      localStorage.setItem("userName", "Praveen");
+      // Store user name in localStorage
+      localStorage.setItem("userName", formattedName);
       
       // Set logged in state
       setIsLoggedIn(true);
@@ -53,7 +59,7 @@ const Login = ({ setIsLoggedIn }: LoginProps) => {
       // Show success toast
       toast({
         title: "Login Successful",
-        description: "Welcome back, Praveen!",
+        description: `Welcome back, ${formattedName}!`,
         duration: 3000,
       });
       

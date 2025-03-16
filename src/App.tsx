@@ -13,6 +13,8 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Workflow from "./pages/Workflow";
+import Details from "./pages/Details";
+import Finance from "./pages/Finance";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,8 @@ const App = () => {
             <Route path="/products" element={isLoggedIn ? <Products /> : <Navigate to="/login" />} />
             <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
             <Route path="/workflow" element={isLoggedIn ? <Workflow /> : <Navigate to="/login" />} />
+            <Route path="/details" element={isLoggedIn ? <Details /> : <Navigate to="/login" />} />
+            <Route path="/finance" element={isLoggedIn ? <Finance /> : <Navigate to="/login" />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
