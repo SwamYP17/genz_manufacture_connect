@@ -1,3 +1,4 @@
+
 import { ReactNode, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -7,14 +8,14 @@ import { pageVariants } from "./ui-components";
 
 interface LayoutProps {
   children: ReactNode;
-  pageTitle?: string;
 }
 
-const Layout = ({ children, pageTitle }: LayoutProps) => {
+const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Simulate initial loading
     const timeout = setTimeout(() => {
       setIsLoading(false);
     }, 800);
@@ -22,17 +23,10 @@ const Layout = ({ children, pageTitle }: LayoutProps) => {
     return () => clearTimeout(timeout);
   }, []);
 
+  // Add animation for route transitions
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
-
-  useEffect(() => {
-    if (pageTitle) {
-      document.title = `GenZ Connects | ${pageTitle}`;
-    } else {
-      document.title = "GenZ Connects";
-    }
-  }, [pageTitle]);
 
   if (isLoading) {
     return (

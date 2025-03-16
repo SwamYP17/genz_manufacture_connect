@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, UserPlus, Save, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { Input, Button, GlassCard } from "@/components/ui-components";
 import { useToast } from "@/components/ui/use-toast";
 import { 
@@ -85,25 +85,6 @@ const Register = () => {
     }, 1500);
   };
 
-  const handleSave = () => {
-    if (form.formState.isValid) {
-      onSubmit(form.getValues());
-    } else {
-      // Trigger validation to show errors
-      form.trigger();
-      toast({
-        title: "Validation Error",
-        description: "Please fix all form errors before saving.",
-        variant: "destructive",
-        duration: 3000,
-      });
-    }
-  };
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-genz-blue-light to-white">
       <motion.div
@@ -129,18 +110,6 @@ const Register = () => {
           >
             Join the network of GenZ entrepreneurs
           </motion.p>
-        </div>
-
-        <div className="mb-4 flex justify-start">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleGoBack}
-            className="flex items-center gap-1"
-          >
-            <ArrowLeft size={16} />
-            Back
-          </Button>
         </div>
 
         <GlassCard className="mb-4">
@@ -269,30 +238,16 @@ const Register = () => {
                 )}
               />
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  width="full"
-                  className="flex-1"
-                  onClick={handleSave}
-                  disabled={isLoading}
-                  leftIcon={<Save size={18} />}
-                >
-                  Save
-                </Button>
-                <Button
-                  type="submit"
-                  width="full"
-                  className="flex-1"
-                  loading={isLoading}
-                  loadingText="Creating account..."
-                  leftIcon={<UserPlus size={18} />}
-                  disabled={isLoading}
-                >
-                  Sign Up
-                </Button>
-              </div>
+              <Button
+                type="submit"
+                width="full"
+                loading={isLoading}
+                loadingText="Creating account..."
+                leftIcon={<UserPlus size={18} />}
+                disabled={isLoading}
+              >
+                Sign Up
+              </Button>
             </form>
           </Form>
         </GlassCard>
