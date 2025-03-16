@@ -11,16 +11,16 @@ import {
   Badge 
 } from "@/components/ui-components";
 
-// Material cost estimation data
+// Material cost estimation data - converted to INR (approximate conversion rate: 1 USD = 75 INR)
 const materialCosts = {
-  "Plastic": { min: 2, max: 10, unit: "kg" },
-  "Metal": { min: 5, max: 30, unit: "kg" },
-  "Wood": { min: 3, max: 15, unit: "kg" },
-  "Fabric": { min: 5, max: 25, unit: "m²" },
-  "Electronics": { min: 10, max: 200, unit: "unit" },
-  "Glass": { min: 8, max: 40, unit: "m²" },
-  "Rubber": { min: 4, max: 20, unit: "kg" },
-  "Paper/Cardboard": { min: 1, max: 5, unit: "kg" },
+  "Plastic": { min: 150, max: 750, unit: "kg" },
+  "Metal": { min: 375, max: 2250, unit: "kg" },
+  "Wood": { min: 225, max: 1125, unit: "kg" },
+  "Fabric": { min: 375, max: 1875, unit: "m²" },
+  "Electronics": { min: 750, max: 15000, unit: "unit" },
+  "Glass": { min: 600, max: 3000, unit: "m²" },
+  "Rubber": { min: 300, max: 1500, unit: "kg" },
+  "Paper/Cardboard": { min: 75, max: 375, unit: "kg" },
 };
 
 interface Material {
@@ -164,6 +164,14 @@ const Products = () => {
     return Math.round(avgCost * (1 + profitMargin / 100));
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   const renderForm = () => {
     switch (step) {
       case 1:
@@ -271,7 +279,7 @@ const Products = () => {
                       </div>
                       <div className="flex items-center">
                         <span className="text-sm text-genz-gray-dark mr-3">
-                          ${material.costPerUnit}/unit
+                          {formatCurrency(material.costPerUnit)}/unit
                         </span>
                         <Button
                           variant="ghost"
@@ -302,13 +310,13 @@ const Products = () => {
                   <div>
                     <p className="text-sm text-genz-gray-dark">Materials Cost:</p>
                     <p className="text-lg font-medium text-genz-dark">
-                      ${productData.materials.reduce((sum, m) => sum + m.quantity * m.costPerUnit, 0).toFixed(2)}
+                      {formatCurrency(productData.materials.reduce((sum, m) => sum + m.quantity * m.costPerUnit, 0))}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-genz-gray-dark">Estimated Total Cost:</p>
                     <p className="text-lg font-medium text-genz-dark">
-                      ${estimatedCost.min} - ${estimatedCost.max}
+                      {formatCurrency(estimatedCost.min)} - {formatCurrency(estimatedCost.max)}
                     </p>
                   </div>
                 </div>
@@ -330,7 +338,7 @@ const Products = () => {
                 <div className="p-3 bg-white rounded-lg">
                   <p className="text-sm text-genz-gray-dark">Suggested Retail Price:</p>
                   <p className="text-xl font-semibold text-genz-blue">
-                    ${calculateSuggestedPrice()}
+                    {formatCurrency(calculateSuggestedPrice())}
                   </p>
                 </div>
               </div>
