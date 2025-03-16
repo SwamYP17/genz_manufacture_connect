@@ -149,7 +149,6 @@ const Login = ({ setIsLoggedIn }: LoginProps) => {
           <p className="text-genz-gray-dark">
             Don't have an account?{" "}
             <button
-              onClick={() => navigate("/register")}
               className="text-genz-blue hover:underline font-medium"
             >
               Sign up

@@ -12,11 +12,9 @@ import Products from "./pages/Products";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
 import Workflow from "./pages/Workflow";
 import Details from "./pages/Details";
 import Finance from "./pages/Finance";
-import SavedEstimations from "./pages/SavedEstimations";
 
 const queryClient = new QueryClient();
 
@@ -39,7 +37,6 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
-            <Route path="/register" element={<Register />} />
             <Route path="/" element={isLoggedIn ? <Index /> : <Navigate to="/login" />} />
             <Route path="/industries" element={isLoggedIn ? <Industries /> : <Navigate to="/login" />} />
             <Route path="/stocks" element={isLoggedIn ? <Stocks /> : <Navigate to="/login" />} />
@@ -48,7 +45,6 @@ const App = () => {
             <Route path="/workflow" element={isLoggedIn ? <Workflow /> : <Navigate to="/login" />} />
             <Route path="/details" element={isLoggedIn ? <Details /> : <Navigate to="/login" />} />
             <Route path="/finance" element={isLoggedIn ? <Finance /> : <Navigate to="/login" />} />
-            <Route path="/saved-estimations" element={isLoggedIn ? <SavedEstimations /> : <Navigate to="/login" />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

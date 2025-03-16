@@ -1,11 +1,11 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
-import { Trash, PlusCircle, Save } from "lucide-react";
-import SaveEstimationModal from "@/components/SaveEstimationModal";
+import { Lightbulb, Package, ArrowRight, PlusCircle, Trash2 } from "lucide-react";
+import { motion } from "framer-motion";
+import Layout from "@/components/Layout";
 import { 
-  AnimatedContainer, 
   GlassCard, 
+  AnimatedContainer, 
   Input, 
   Button, 
   Badge 
@@ -24,128 +24,139 @@ const materialCosts = {
 };
 
 interface Material {
+  id: string;
   name: string;
   quantity: number;
+  unit: string;
   costPerUnit: number;
 }
 
-interface ProductData {
-  name: string;
-  description: string;
-  category: string;
-  materials: Material[];
-  laborCost: number;
-  otherCosts: number;
-}
+// Initial product form data
+const initialProductData = {
+  name: "",
+  description: "",
+  category: "",
+  targetPrice: "",
+  materials: [] as Material[],
+};
 
 const Products = () => {
-  const [step, setStep] = useState(1);
-  const [materialOptions] = useState(Object.keys(materialCosts));
+  const [productData, setProductData] = useState(initialProductData);
   const [selectedMaterial, setSelectedMaterial] = useState("");
-  const [materialQuantity, setMaterialQuantity] = useState(1);
-  const [materialCostPerUnit, setMaterialCostPerUnit] = useState(0);
-  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [materialQuantity, setMaterialQuantity] = useState("");
+  const [step, setStep] = useState(1);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [estimatedCost, setEstimatedCost] = useState({ min: 0, max: 0 });
+  const [profitMargin, setProfitMargin] = useState(30); // Default 30%
 
-  const [productData, setProductData] = useState<ProductData>({
-    name: "",
-    description: "",
-    category: "",
-    materials: [],
-    laborCost: 0,
-    otherCosts: 0,
-  });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setProductData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-  const [profitMargin, setProfitMargin] = useState(30);
-  
-  const [errors, setErrors] = useState({
-    name: "",
-    materials: "",
-  });
-
-  // Calculate estimated cost
-  const estimatedCost = {
-    min: Math.round(
-      productData.materials.reduce((sum, m) => sum + m.quantity * m.costPerUnit * 0.85, 0) +
-      productData.laborCost +
-      productData.otherCosts
-    ),
-    max: Math.round(
-      productData.materials.reduce((sum, m) => sum + m.quantity * m.costPerUnit * 1.15, 0) +
-      productData.laborCost * 1.2 +
-      productData.otherCosts * 1.1
-    ),
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
   };
 
-  const handleAddMaterial = () => {
-    if (!selectedMaterial) {
+  const addMaterial = () => {
+    if (!selectedMaterial || !materialQuantity || isNaN(Number(materialQuantity)) || Number(materialQuantity) <= 0) {
       return;
     }
 
-    const newMaterial: Material = {
-      name: selectedMaterial,
-      quantity: materialQuantity,
-      costPerUnit: materialCostPerUnit || 
-        Math.round(
-          (materialCosts[selectedMaterial as keyof typeof materialCosts].min + 
-           materialCosts[selectedMaterial as keyof typeof materialCosts].max) / 2
-        ),
-    };
-
-    setProductData({
-      ...productData,
-      materials: [...productData.materials, newMaterial],
-    });
-
-    // Reset material inputs
-    setSelectedMaterial("");
-    setMaterialQuantity(1);
-    setMaterialCostPerUnit(0);
-  };
-
-  const handleRemoveMaterial = (index: number) => {
-    const updatedMaterials = [...productData.materials];
-    updatedMaterials.splice(index, 1);
-    setProductData({
-      ...productData,
-      materials: updatedMaterials,
-    });
-  };
-
-  const handleMaterialChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const material = e.target.value;
-    setSelectedMaterial(material);
+    const material = selectedMaterial as keyof typeof materialCosts;
+    const cost = materialCosts[material];
     
-    if (material) {
-      // Set default cost per unit based on the average of min and max
-      const { min, max } = materialCosts[material as keyof typeof materialCosts];
-      setMaterialCostPerUnit(Math.round((min + max) / 2));
-    } else {
-      setMaterialCostPerUnit(0);
-    }
-  };
+    // Random cost within the range
+    const costPerUnit = Math.floor(Math.random() * (cost.max - cost.min + 1)) + cost.min;
 
-  const validateStep1 = () => {
-    const newErrors = {
-      name: !productData.name ? "Product name is required" : "",
-      materials: productData.materials.length === 0 ? "At least one material is required" : "",
+    const newMaterial: Material = {
+      id: Date.now().toString(),
+      name: selectedMaterial,
+      quantity: Number(materialQuantity),
+      unit: cost.unit,
+      costPerUnit,
     };
 
-    setErrors(newErrors);
-    return !Object.values(newErrors).some(error => error);
+    setProductData((prev) => ({
+      ...prev,
+      materials: [...prev.materials, newMaterial],
+    }));
+
+    // Reset inputs
+    setSelectedMaterial("");
+    setMaterialQuantity("");
+
+    // Recalculate cost estimation
+    const updatedMaterials = [...productData.materials, newMaterial];
+    calculateCostEstimation(updatedMaterials);
   };
 
-  const handleContinue = () => {
-    if (step === 1 && validateStep1()) {
-      setStep(2);
-    } else if (step === 2) {
-      setStep(3);
+  const removeMaterial = (id: string) => {
+    const updatedMaterials = productData.materials.filter((m) => m.id !== id);
+    
+    setProductData((prev) => ({
+      ...prev,
+      materials: updatedMaterials,
+    }));
+
+    // Recalculate cost estimation
+    calculateCostEstimation(updatedMaterials);
+  };
+
+  const calculateCostEstimation = (materials: Material[]) => {
+    // Calculate materials cost
+    const materialsCost = materials.reduce((sum, material) => {
+      return sum + material.quantity * material.costPerUnit;
+    }, 0);
+
+    // Add manufacturing overhead (20-40% of materials cost)
+    const minOverhead = materialsCost * 0.2;
+    const maxOverhead = materialsCost * 0.4;
+
+    // Add labor costs (30-50% of materials + overhead)
+    const minLabor = (materialsCost + minOverhead) * 0.3;
+    const maxLabor = (materialsCost + maxOverhead) * 0.5;
+
+    // Calculate total min and max costs
+    const minCost = materialsCost + minOverhead + minLabor;
+    const maxCost = materialsCost + maxOverhead + maxLabor;
+
+    setEstimatedCost({
+      min: Math.round(minCost),
+      max: Math.round(maxCost),
+    });
+  };
+
+  const validateStep = () => {
+    if (step === 1) {
+      const newErrors: Record<string, string> = {};
+      
+      if (!productData.name) newErrors.name = "Product name is required";
+      if (!productData.description) newErrors.description = "Description is required";
+      if (!productData.category) newErrors.category = "Category is required";
+      
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    }
+    
+    return true;
+  };
+
+  const nextStep = () => {
+    if (validateStep()) {
+      setStep(step + 1);
     }
   };
 
-  const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    }
+  const prevStep = () => {
+    setStep(step - 1);
   };
 
   const calculateSuggestedPrice = () => {
@@ -165,138 +176,137 @@ const Products = () => {
     switch (step) {
       case 1:
         return (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-genz-dark">Product Details</h2>
+          <div className="space-y-4">
+            <Input
+              label="Product Name"
+              name="name"
+              placeholder="e.g., Smart Water Bottle"
+              value={productData.name}
+              onChange={handleInputChange}
+              error={errors.name}
+            />
             
-            <div className="space-y-4">
-              <Input
-                label="Product Name"
-                placeholder="e.g., Eco-friendly Water Bottle"
-                value={productData.name}
-                onChange={(e) => setProductData({ ...productData, name: e.target.value })}
-                error={errors.name}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-genz-gray-dark">
+                Description
+              </label>
+              <textarea
+                name="description"
+                placeholder="Describe your product idea..."
+                value={productData.description}
+                onChange={handleInputChange}
+                rows={4}
+                className="w-full px-4 py-3 rounded-xl border border-genz-gray bg-white/70 backdrop-blur-sm placeholder:text-genz-gray-medium resize-none focus:border-genz-blue transition-all"
               />
-              
-              <div className="space-y-2">
-                <Input
-                  label="Product Description (Optional)"
-                  placeholder="Brief description of your product"
-                  value={productData.description}
-                  onChange={(e) => setProductData({ ...productData, description: e.target.value })}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Input
-                  label="Product Category (Optional)"
-                  placeholder="e.g., Kitchenware, Electronics, Fashion"
-                  value={productData.category}
-                  onChange={(e) => setProductData({ ...productData, category: e.target.value })}
-                />
-              </div>
+              {errors.description && <p className="text-xs text-red-500">{errors.description}</p>}
             </div>
             
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium text-genz-dark">Materials</h3>
-                {errors.materials && <p className="text-xs text-red-500">{errors.materials}</p>}
-              </div>
-              
-              <div className="flex flex-wrap gap-3">
-                <div className="w-full sm:w-[calc(40%-0.75rem)]">
-                  <label className="text-sm font-medium text-genz-gray-dark">Material Type</label>
-                  <select
-                    className="w-full px-4 py-3 rounded-xl border border-genz-gray bg-white/70 backdrop-blur-sm"
-                    value={selectedMaterial}
-                    onChange={handleMaterialChange}
-                  >
-                    <option value="">Select material</option>
-                    {materialOptions.map((material) => (
-                      <option key={material} value={material}>
-                        {material}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="w-full sm:w-[calc(20%-0.75rem)]">
-                  <Input
-                    label="Quantity"
-                    type="number"
-                    min="1"
-                    value={materialQuantity}
-                    onChange={(e) => setMaterialQuantity(parseInt(e.target.value) || 1)}
-                  />
-                </div>
-                
-                <div className="w-full sm:w-[calc(30%-0.75rem)]">
-                  <Input
-                    label="Cost per Unit (₹)"
-                    type="number"
-                    min="0"
-                    value={materialCostPerUnit}
-                    onChange={(e) => setMaterialCostPerUnit(parseInt(e.target.value) || 0)}
-                  />
-                </div>
-                
-                <div className="w-full sm:w-[calc(10%-0.75rem)] flex items-end">
-                  <button
-                    type="button"
-                    onClick={handleAddMaterial}
-                    disabled={!selectedMaterial}
-                    className="w-full h-[46px] rounded-xl bg-genz-blue text-white flex items-center justify-center hover:bg-genz-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <PlusCircle size={20} />
-                  </button>
-                </div>
-              </div>
-              
-              {productData.materials.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <h4 className="text-sm font-medium text-genz-gray-dark">Added Materials:</h4>
-                  <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
-                    {productData.materials.map((material, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm"
-                      >
-                        <div>
-                          <span className="font-medium text-genz-dark">{material.name}</span>
-                          <div className="flex items-center">
-                            <span className="text-sm text-genz-gray-dark mr-3">
-                              {formatCurrency(material.costPerUnit)}/unit
-                            </span>
-                            <Badge variant="default">
-                              Qty: {material.quantity}
-                            </Badge>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                          onClick={() => handleRemoveMaterial(index)}
-                        >
-                          <Trash size={18} />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <Input
+              label="Category"
+              name="category"
+              placeholder="e.g., Electronics, Fashion, Home"
+              value={productData.category}
+              onChange={handleInputChange}
+              error={errors.category}
+            />
+            
+            <div className="pt-4 flex justify-end">
+              <Button onClick={nextStep} rightIcon={<ArrowRight size={16} />}>
+                Next: Materials & Costs
+              </Button>
             </div>
           </div>
         );
         
       case 2:
         return (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-genz-dark">Additional Costs</h2>
+          <div className="space-y-4">
+            <div className="flex items-end gap-3">
+              <div className="flex-1">
+                <label className="text-sm font-medium text-genz-gray-dark mb-1.5 block">
+                  Material
+                </label>
+                <select
+                  value={selectedMaterial}
+                  onChange={(e) => setSelectedMaterial(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-genz-gray bg-white/70 backdrop-blur-sm text-genz-gray-dark focus:border-genz-blue transition-all"
+                >
+                  <option value="">Select a material</option>
+                  {Object.keys(materialCosts).map((material) => (
+                    <option key={material} value={material}>
+                      {material}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="w-24">
+                <Input
+                  label="Quantity"
+                  type="number"
+                  value={materialQuantity}
+                  onChange={(e) => setMaterialQuantity(e.target.value)}
+                  min="0"
+                  step="0.1"
+                />
+              </div>
+              
+              <Button
+                onClick={addMaterial}
+                variant="subtle"
+                size="icon"
+                disabled={!selectedMaterial || !materialQuantity}
+                className="mb-1.5"
+              >
+                <PlusCircle size={18} />
+              </Button>
+            </div>
             
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h3 className="text-lg font-medium text-genz-dark mb-4">Materials Summary</h3>
-                <div className="space-y-3">
+            {productData.materials.length > 0 ? (
+              <div className="bg-white/50 rounded-lg p-3">
+                <h4 className="text-sm font-medium text-genz-dark mb-2">Materials List:</h4>
+                <div className="space-y-2">
+                  {productData.materials.map((material) => (
+                    <div
+                      key={material.id}
+                      className="flex items-center justify-between bg-white p-2 rounded-md"
+                    >
+                      <div>
+                        <span className="font-medium text-genz-dark">{material.name}</span>
+                        <span className="text-genz-gray-dark ml-2">
+                          {material.quantity} {material.unit}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-sm text-genz-gray-dark mr-3">
+                          {formatCurrency(material.costPerUnit)}/unit
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-500 h-8 w-8"
+                          onClick={() => removeMaterial(material.id)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white/50 rounded-lg p-6 text-center">
+                <Package size={32} className="mx-auto text-genz-gray-medium mb-2" />
+                <p className="text-genz-gray-dark">
+                  Add materials to see cost estimation
+                </p>
+              </div>
+            )}
+            
+            {productData.materials.length > 0 && (
+              <div className="mt-6 p-4 bg-genz-blue/10 rounded-xl">
+                <h4 className="text-lg font-semibold text-genz-dark mb-2">Cost Estimation</h4>
+                <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <p className="text-sm text-genz-gray-dark">Materials Cost:</p>
                     <p className="text-lg font-medium text-genz-dark">
@@ -310,59 +320,19 @@ const Products = () => {
                     </p>
                   </div>
                 </div>
-              </div>
-              
-              <div className="space-y-4">
-                <Input
-                  label="Labor Cost (₹)"
-                  type="number"
-                  min="0"
-                  value={productData.laborCost}
-                  onChange={(e) => setProductData({ ...productData, laborCost: parseInt(e.target.value) || 0 })}
-                  placeholder="Total labor cost for production"
-                />
                 
-                <Input
-                  label="Other Costs (₹)"
-                  type="number"
-                  min="0"
-                  value={productData.otherCosts}
-                  onChange={(e) => setProductData({ ...productData, otherCosts: parseInt(e.target.value) || 0 })}
-                  placeholder="Packaging, shipping, overhead, etc."
-                />
-              </div>
-            </div>
-          </div>
-        );
-        
-      case 3:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-genz-dark">Pricing Analysis</h2>
-            
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-genz-gray-dark">Profit Margin (%)</label>
+                <div className="mb-4">
+                  <label className="text-sm font-medium text-genz-gray-dark mb-1 block">
+                    Profit Margin: {profitMargin}%
+                  </label>
                   <input
                     type="range"
                     min="10"
                     max="100"
-                    step="5"
                     value={profitMargin}
-                    onChange={(e) => setProfitMargin(parseInt(e.target.value))}
-                    className="w-full h-2 bg-genz-gray rounded-lg appearance-none cursor-pointer mt-2"
+                    onChange={(e) => setProfitMargin(Number(e.target.value))}
+                    className="w-full h-2 bg-genz-blue-light rounded-lg appearance-none cursor-pointer accent-genz-blue"
                   />
-                  <div className="flex justify-between text-xs text-genz-gray-dark mt-1">
-                    <span>10%</span>
-                    <span>50%</span>
-                    <span>100%</span>
-                  </div>
-                </div>
-                
-                <div className="p-3 bg-white rounded-lg">
-                  <p className="text-sm text-genz-gray-dark">Selected Profit Margin:</p>
-                  <p className="text-xl font-semibold text-genz-dark">{profitMargin}%</p>
                 </div>
                 
                 <div className="p-3 bg-white rounded-lg">
@@ -372,54 +342,18 @@ const Products = () => {
                   </p>
                 </div>
               </div>
-              
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h3 className="text-lg font-medium text-genz-dark mb-4">Cost Breakdown</h3>
-                <ul className="space-y-3">
-                  <li className="flex justify-between">
-                    <span className="text-genz-gray-dark">Materials:</span>
-                    <span className="font-medium">
-                      {formatCurrency(productData.materials.reduce((sum, m) => sum + m.quantity * m.costPerUnit, 0))}
-                    </span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-genz-gray-dark">Labor:</span>
-                    <span className="font-medium">{formatCurrency(productData.laborCost)}</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-genz-gray-dark">Other Costs:</span>
-                    <span className="font-medium">{formatCurrency(productData.otherCosts)}</span>
-                  </li>
-                  <li className="flex justify-between pt-2 border-t">
-                    <span className="text-genz-gray-dark">Total Production Cost:</span>
-                    <span className="font-semibold">
-                      {formatCurrency((estimatedCost.min + estimatedCost.max) / 2)}
-                    </span>
-                  </li>
-                  <li className="flex justify-between pt-2 border-t">
-                    <span className="text-genz-gray-dark">Profit ({profitMargin}%):</span>
-                    <span className="font-semibold text-green-600">
-                      {formatCurrency(((estimatedCost.min + estimatedCost.max) / 2) * (profitMargin / 100))}
-                    </span>
-                  </li>
-                </ul>
-                
-                <div className="mt-4 pt-3 border-t flex justify-between">
-                  <Button 
-                    variant="outline"
-                    leftIcon={<Save size={18} />}
-                    onClick={() => setIsSaveModalOpen(true)}
-                  >
-                    Save Estimation
-                  </Button>
-                  
-                  <Button
-                    variant="success"
-                  >
-                    Export Report
-                  </Button>
-                </div>
-              </div>
+            )}
+            
+            <div className="pt-4 flex justify-between">
+              <Button variant="outline" onClick={prevStep}>
+                Back
+              </Button>
+              <Button 
+                onClick={() => console.log("Save product data:", productData)}
+                disabled={productData.materials.length === 0}
+              >
+                Save Product Idea
+              </Button>
             </div>
           </div>
         );
@@ -430,79 +364,57 @@ const Products = () => {
   };
 
   return (
-    <Layout pageTitle="Product Estimation">
-      <AnimatedContainer 
+    <Layout>
+      <AnimatedContainer
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="container mx-auto p-4"
+        className="space-y-6"
       >
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-genz-dark">Product Cost Estimation</h1>
-          <p className="text-genz-gray-dark">Estimate costs and determine optimal pricing for your product</p>
-        </div>
-        
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex space-x-1 sm:space-x-2">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className={`flex items-center ${i < 3 ? "w-24 sm:w-32" : ""}`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                    i <= step
-                      ? "bg-genz-blue text-white"
-                      : "bg-genz-gray-light text-genz-gray-dark"
-                  }`}
-                >
-                  {i}
-                </div>
-                {i < 3 && (
-                  <>
-                    <div
-                      className={`h-1 flex-grow mx-1 ${
-                        i < step ? "bg-genz-blue" : "bg-genz-gray-light"
-                      }`}
-                    ></div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-          
-          <div className="hidden sm:block text-sm text-genz-gray-dark">
-            Step {step} of 3
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-2xl font-display font-bold text-genz-dark mb-1">Product Ideation</h1>
+          <p className="text-genz-gray-dark">Design your product and estimate manufacturing costs</p>
+        </motion.div>
+
+        <div className="flex mb-6">
+          <div className="flex items-center w-full">
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
+                step >= 1 ? "bg-genz-blue" : "bg-genz-gray-medium"
+              }`}
+            >
+              1
+            </div>
+            <div className={`h-1 flex-1 ${step >= 2 ? "bg-genz-blue" : "bg-genz-gray"}`}></div>
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
+                step >= 2 ? "bg-genz-blue" : "bg-genz-gray-medium"
+              }`}
+            >
+              2
+            </div>
           </div>
         </div>
-        
+
         <GlassCard>
           {renderForm()}
-          
-          <div className="flex justify-between mt-8">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              disabled={step === 1}
-            >
-              Back
-            </Button>
-            
-            <Button onClick={handleContinue} disabled={step === 3}>
-              {step < 3 ? "Continue" : "Finish"}
-            </Button>
-          </div>
         </GlassCard>
-        
-        {/* Save Estimation Modal */}
-        <SaveEstimationModal 
-          isOpen={isSaveModalOpen}
-          onClose={() => setIsSaveModalOpen(false)}
-          productData={productData}
-          estimatedCost={estimatedCost}
-          profitMargin={profitMargin}
-          suggestedPrice={calculateSuggestedPrice()}
-        />
+
+        <div className="bg-genz-blue-light rounded-xl p-4 flex items-start space-x-4">
+          <div className="p-2 bg-white rounded-full">
+            <Lightbulb size={24} className="text-genz-blue" />
+          </div>
+          <div>
+            <h3 className="font-medium text-genz-dark mb-1">Product Design Tip</h3>
+            <p className="text-sm text-genz-gray-dark">
+              Consider manufacturing constraints early in your design process. 
+              Simple designs with fewer components are usually cheaper and easier to produce.
+            </p>
+          </div>
+        </div>
       </AnimatedContainer>
     </Layout>
   );
