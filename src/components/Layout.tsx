@@ -8,9 +8,10 @@ import { pageVariants } from "./ui-components";
 
 interface LayoutProps {
   children: ReactNode;
+  pageTitle?: string; // Add optional pageTitle prop
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children, pageTitle }: LayoutProps) => {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -22,6 +23,15 @@ const Layout = ({ children }: LayoutProps) => {
 
     return () => clearTimeout(timeout);
   }, []);
+
+  // Set document title when pageTitle changes
+  useEffect(() => {
+    if (pageTitle) {
+      document.title = `${pageTitle} | GenZ Connects`;
+    } else {
+      document.title = "GenZ Connects";
+    }
+  }, [pageTitle]);
 
   // Add animation for route transitions
   useEffect(() => {
