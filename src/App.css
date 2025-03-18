@@ -44,7 +44,13 @@
 /* Hide Lovable badge */
 .lovable-badge,
 div[class*="lovable"],
-div[class*="Lovable"] {
+div[class*="Lovable"],
+[class*="lovable"],
+[class*="Lovable"],
+#lovable-badge,
+#lovable-root,
+[id*="lovable"],
+[id*="Lovable"] {
   display: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
@@ -53,4 +59,9 @@ div[class*="Lovable"] {
   width: 0 !important;
   height: 0 !important;
   overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  z-index: -9999 !important;
 }
