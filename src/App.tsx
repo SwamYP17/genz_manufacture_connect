@@ -27,6 +27,8 @@ const App = () => {
     if (userName) {
       setIsLoggedIn(true);
     }
+    // Add class to hide Lovable badge
+    document.body.classList.add('lovable-badge');
   }, []);
 
   return (
