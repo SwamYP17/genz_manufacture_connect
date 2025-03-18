@@ -27,9 +27,24 @@ const App = () => {
     if (userName) {
       setIsLoggedIn(true);
     }
-    // Add class to hide Lovable badge
+    
+    // Add classes to hide Lovable branding
     document.documentElement.classList.add('lovable-badge');
     document.body.classList.add('lovable-badge');
+    
+    // Additional approach to hide Lovable branding
+    const removeLovabledBranding = () => {
+      const elements = document.querySelectorAll('[class*="lovable"],[class*="Lovable"],[id*="lovable"],[id*="Lovable"],div[style*="z-index: 2147483647"],div[style*="position: fixed"][style*="bottom: 0"][style*="right: 0"]');
+      elements.forEach(el => {
+        el.remove();
+      });
+    };
+    
+    // Run immediately and then periodically
+    removeLovabledBranding();
+    const interval = setInterval(removeLovabledBranding, 1000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   return (

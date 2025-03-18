@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -41,7 +42,7 @@
   color: #888;
 }
 
-/* Hide Lovable badge */
+/* Comprehensive Lovable branding removal */
 .lovable-badge,
 div[class*="lovable"],
 div[class*="Lovable"],
@@ -50,7 +51,23 @@ div[class*="Lovable"],
 #lovable-badge,
 #lovable-root,
 [id*="lovable"],
-[id*="Lovable"] {
+[id*="Lovable"],
+iframe[src*="lovable"],
+a[href*="lovable.app"],
+a[href*="lovable.dev"],
+button[data-lovable],
+[data-lovable],
+[data-lovable-id],
+[data-lovable-component],
+button[class*="edit-with-lovable"],
+div[class*="edit-with-lovable"],
+a[class*="edit-with-lovable"],
+.edit-with-lovable,
+#edit-with-lovable,
+[id^="lovable-"],
+[class^="lovable-"],
+div[style*="z-index: 2147483647"],
+div[style*="position: fixed"][style*="bottom: 0"][style*="right: 0"] {
   display: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
